@@ -1,0 +1,43 @@
+{
+  "name": "@levent-kurt/git-autocommit",
+  "version": "1.0.0",
+  "description": "OpenCode plugin that automatically commits changes when your coding session becomes idle",
+  "author": "levent-kurt",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/levent-kurt/git-autocommit.git"
+  },
+  "homepage": "https://github.com/levent-kurt/git-autocommit#readme",
+  "bugs": {
+    "url": "https://github.com/levent-kurt/git-autocommit/issues"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "node -e \"const ts = require('typescript'); const compilerOptions = { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.NodeJs, declaration: true, outDir: 'dist', rootDir: 'src', strict: true, esModuleInterop: true, skipLibCheck: true, types: ['node'], allowSyntheticDefaultImports: true, resolveJsonModule: true }; const program = ts.createProgram(['src/index.ts'], compilerOptions); program.emit(); \"",
+    "prepublishOnly": "npm run build",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "git",
+    "autocommit",
+    "automation"
+  ],
+  "dependencies": {
+    "@opencode-ai/plugin": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "@opencode-ai/plugin": ">=1.0.0"
+  }
+}
