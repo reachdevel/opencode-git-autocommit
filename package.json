@@ -1,6 +1,6 @@
 {
   "name": "@reachdevel/opencode-git-commit",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Zero-config background git auto-commit plugin for OpenCode CLI",
   "author": "Levent Kurt <reachdevel@gmail.com>",
   "license": "MIT",
