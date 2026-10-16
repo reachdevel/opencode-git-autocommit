@@ -209,12 +209,30 @@ const GitAutocommitPlugin = Plugin.define({
       return settled
     }
 
+    // Only commit on root session endings - skip subagent sessions so their
+    // work isn't committed while the parent task is still in flight.
+    async function isRootSession(sessionID: string): Promise<boolean> {
+      try {
+        const info = await ctx.session.get({ sessionID })
+        return !info?.parentID
+      } catch {
+        // If we can't determine parentage, run to avoid losing commits
+        return true
+      }
+    }
+
     void (async () => {
       for await (const event of ctx.event.subscribe({ signal: controller.signal })) {
         // OpenCode v2 does not publish session.idle to plugins. The terminal
         // execution events are what actually signal the session finished.
         if (!isTerminal(event)) continue
         log("debug", `Session finished (${event.type})`)
+
+        // Skip subagent sessions: only root session endings trigger commits
+        if (!(await isRootSession(event.data.sessionID))) {
+          log("debug", `Skipping subagent session ${event.data.sessionID}`)
+          continue
+        }
 
         await run(ctx.location.directory)
       }
