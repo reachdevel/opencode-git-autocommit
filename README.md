@@ -1,8 +1,10 @@
 # Git Autocommit Plugin for OpenCode
 
-[![npm version](https://badge.fury.io/js/@levent-kurt%2Fgit-autocommit.svg)](https://badge.fury.io/js/@levent-kurt%2Fgit-autocommit)
+[![npm version](https://badge.fury.io/js/@reachdevel%2Fopencode-git-commit.svg)](https://badge.fury.io/js/@reachdevel%2Fopencode-git-commit)
 
 An OpenCode plugin that automatically commits changes when your coding session becomes idle.
+
+Requires OpenCode v2 (uses the `@opencode/plugin` v2 plugin API).
 
 ## What It Does
 
@@ -26,31 +28,31 @@ The commit message is intelligently extracted from the last assistant message in
 
 ### Via Command Line
 ```bash
-opencode plugin "@levent-kurt/git-autocommit@latest"
+opencode plugin add @reachdevel/opencode-git-commit@latest
 ```
 
 ### Via Configuration
-Add to your `.opencode/opencode.json`:
+Add to your `opencode.json`:
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": [
-    "@levent-kurt/git-autocommit@latest"
+  "plugins": [
+    "@reachdevel/opencode-git-commit@latest"
   ]
 }
 ```
 
 ### Manual Installation
 ```bash
-npm install @levent-kurt/git-autocommit
+npm install @reachdevel/opencode-git-commit
 ```
 
-Then add to `.opencode/opencode.json`:
+Then add to `opencode.json`:
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": [
-    "file:///path/to/node_modules/@levent-kurt/git-autocommit/dist/index.js"
+  "plugins": [
+    "file:///path/to/node_modules/@reachdevel/opencode-git-commit/dist/index.js"
   ]
 }
 ```
@@ -66,6 +68,14 @@ Then add to `.opencode/opencode.json`:
 ## Configuration
 
 The plugin works out of the box with no configuration needed. Just install and it will start auto-committing.
+
+To disable it for a project, remove its id from the plugin list:
+
+```json
+{
+  "plugins": ["*", "-git-autocommit"]
+}
+```
 
 ## Requirements
 

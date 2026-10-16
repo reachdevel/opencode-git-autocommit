@@ -1,69 +1,114 @@
-import type { Plugin } from "@opencode-ai/plugin";
+import { execFile } from "node:child_process"
+import { promisify } from "node:util"
+import { Plugin } from "@opencode/plugin"
 
-export const GitAutocommitPlugin: Plugin = async (ctx) => {
-  ctx.client.app.log({ body: { service: "git-autocommit", level: "info", message: "Plugin initialized" } });
+const exec = promisify(execFile)
 
-  return {
-    event: async ({ event }) => {
-      if (event.type !== "session.idle") return;
+const SERVICE = "git-autocommit"
 
-      ctx.client.app.log({ body: { service: "git-autocommit", level: "debug", message: "Session idle detected" } });
+function log(level: "info" | "debug" | "error", message: string) {
+  const line = `[${SERVICE}] ${message}`
+  if (level === "error") console.error(line)
+  else console.log(line)
+}
 
-      try {
-        const cwd = ctx.worktree;
+async function git(cwd: string, args: string[]) {
+  const { stdout } = await exec("git", ["-C", cwd, ...args], { cwd })
+  return stdout
+}
 
-        // Check if .git exists, if not initialize silently
-        const gitCheck = await ctx.$`test -d ${cwd}/.git`.quiet();
-        if (gitCheck.exitCode !== 0) {
-          await ctx.$`git init ${cwd}`.quiet();
-          ctx.client.app.log({ body: { service: "git-autocommit", level: "info", message: "Initialized git repository" } });
+async function isRepository(cwd: string) {
+  try {
+    await git(cwd, ["rev-parse", "--git-dir"])
+    return true
+  } catch {
+    return false
+  }
+}
+
+function commitMessageFrom(messages: readonly { type: string; content?: readonly { type: string; text?: string }[] }[]) {
+  const assistant = [...messages].reverse().find((m) => m.type === "assistant")
+  const text = assistant?.content?.find((part) => part.type === "text")?.text
+  if (!text) return undefined
+
+  const sanitized = text
+    .split("\n")[0]
+    .replace(/[^a-zA-Z0-9 ]/g, "")
+    .substring(0, 50)
+    .trim()
+
+  return sanitized || undefined
+}
+
+function buildCommitMessage(text: string) {
+  const type = text.toLowerCase().includes("fix") ? "fix" : "feat"
+  return `${type}: ${text}`
+}
+
+const GitAutocommitPlugin = Plugin.define({
+  id: "git-autocommit",
+  setup(ctx) {
+    log("info", `Plugin initialized for ${ctx.location.directory}`)
+
+    const controller = new AbortController()
+    const pending = new Map<string, Promise<void>>()
+
+    const run = (directory: string, sessionID: string) => {
+      const previous = pending.get(directory) ?? Promise.resolve()
+      const next = previous.then(async () => {
+        const cwd = directory
+
+        // Initialize a repository if the location has none yet
+        if (!(await isRepository(cwd))) {
+          await git(cwd, ["init"])
+          log("info", "Initialized git repository")
         }
 
-        // Check for changes
-        const statusResult = await ctx.$`git -C ${cwd} status --porcelain`.quiet();
-        if (!statusResult.stdout.toString().trim()) {
-          ctx.client.app.log({ body: { service: "git-autocommit", level: "debug", message: "No changes detected" } });
-          return;
+        const status = await git(cwd, ["status", "--porcelain"])
+        if (!status.trim()) {
+          log("debug", "No changes detected")
+          return
         }
 
-        // Fetch session messages to get last assistant message
-        const sessionID = event.properties.sessionID;
-        const messagesResponse = await ctx.client.session.messages({
-          path: { id: sessionID },
-          query: { directory: ctx.directory }
-        });
-
-        const messages = messagesResponse.data || [];
-        const lastAssistantMsg = [...messages].reverse().find(m => m.info.role === "assistant");
-
-        let commitText = "automated update";
-        if (lastAssistantMsg) {
-          const textPart = lastAssistantMsg.parts.find(p => p.type === "text");
-          if (textPart && "text" in textPart) {
-            const rawText = textPart.text
-              .split('\n')[0]
-              .replace(/[^a-zA-Z0-9 ]/g, "")
-              .substring(0, 50)
-              .trim();
-            if (rawText) commitText = rawText;
-          }
-        }
-
-        const commitType = commitText.toLowerCase().includes("fix") ? "fix" : "feat";
-        const finalMsg = `${commitType}: ${commitText}`;
+        const messages = await ctx.session.context({ sessionID })
+        const text = commitMessageFrom(messages) ?? "automated update"
+        const message = buildCommitMessage(text)
 
         // Stage and commit (git respects .gitignore by default)
-        await ctx.$`git -C ${cwd} add .`.quiet();
-        await ctx.$`git -C ${cwd} commit -m ${finalMsg} --no-verify`.quiet();
+        await git(cwd, ["add", "."])
 
-        ctx.client.app.log({ body: { service: "git-autocommit", level: "info", message: `Committed: ${finalMsg}` } });
+        // Fall back to a bot identity only when the machine has no git identity configured
+        const identity =
+          process.env.GIT_AUTHOR_EMAIL || (await git(cwd, ["config", "--get", "user.email"]).catch(() => ""))
+            ? []
+            : ["-c", "user.name=opencode", "-c", "user.email=opencode@localhost"]
 
-      } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : String(err);
-        ctx.client.app.log({ body: { service: "git-autocommit", level: "error", message: errorMsg } });
-      }
+        await git(cwd, [...identity, "commit", "-m", message, "--no-verify"])
+
+        log("info", `Committed: ${message}`)
+      })
+
+      const settled = next.catch((err) => {
+        const message = err instanceof Error ? err.message : String(err)
+        log("error", message)
+      })
+      pending.set(directory, settled)
+      return settled
     }
-  };
-};
 
-export default GitAutocommitPlugin;
+    void (async () => {
+      for await (const event of ctx.event.subscribe({ signal: controller.signal })) {
+        if (event.type !== "session.idle") continue
+        log("debug", "Session idle detected")
+
+        const directory = event.location?.directory ?? ctx.location.directory
+        await run(directory, event.data.sessionID)
+      }
+    })()
+
+    return () => controller.abort()
+  },
+})
+
+export { GitAutocommitPlugin }
+export default GitAutocommitPlugin

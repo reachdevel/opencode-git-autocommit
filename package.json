@@ -1,8 +1,8 @@
 {
-  "name": "@levent-kurt/opencode-git-commit",
-  "version": "1.0.1",
+  "name": "@reachdevel/opencode-git-commit",
+  "version": "2.0.0",
   "description": "Zero-config background git auto-commit plugin for OpenCode CLI",
-  "author": "Levent Kurt",
+  "author": "Levent Kurt <reachdevel@gmail.com>",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
@@ -20,12 +20,8 @@
     "README.md",
     "LICENSE"
   ],
-  "opencode": {
-    "provides": ["git-autocommit"],
-    "events": ["session.idle"]
-  },
   "scripts": {
-    "build": "node -e \"const ts = require('typescript'); const compilerOptions = { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.NodeJs, declaration: true, outDir: 'dist', rootDir: 'src', strict: true, esModuleInterop: true, skipLibCheck: true, types: ['node'], allowSyntheticDefaultImports: true, resolveJsonModule: true }; const program = ts.createProgram(['src/index.ts'], compilerOptions); program.emit(); \"",
+    "build": "tsc -p tsconfig.json",
     "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit"
   },
@@ -37,13 +33,13 @@
     "automation"
   ],
   "dependencies": {
-    "@opencode-ai/plugin": "latest"
+    "@opencode/plugin": "^2.0.31"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "typescript": "^5.0.0"
   },
-  "peerDependencies": {
-    "@opencode-ai/plugin": ">=1.0.0"
+  "publishConfig": {
+    "access": "public"
   }
 }
