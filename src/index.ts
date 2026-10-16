@@ -47,9 +47,14 @@ function commitMessageFrom(messages: readonly { type: string; content?: readonly
   const text = assistant?.content?.find((part) => part.type === "text")?.text
   if (!text) return undefined
 
+  // Keep word boundaries so "proof.txt" becomes "proof txt" instead of "prooftxt".
+  // Markdown decoration (*, `, _, #) only ever touches word edges, so drop it outright.
   const sanitized = text
     .split("\n")[0]
-    .replace(/[^a-zA-Z0-9 ]/g, "")
+    .replace(/[*_`#[\]()]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
     .substring(0, 50)
     .trim()
 
