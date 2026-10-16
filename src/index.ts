@@ -6,6 +6,22 @@ const exec = promisify(execFile)
 
 const SERVICE = "git-autocommit"
 
+/** Terminal session events: the session stopped running and can be committed. */
+type TerminalEvent = {
+  type: "session.execution.succeeded" | "session.execution.failed" | "session.execution.interrupted"
+  data: { sessionID: string }
+}
+
+const TERMINAL = new Set<string>([
+  "session.execution.succeeded",
+  "session.execution.failed",
+  "session.execution.interrupted",
+])
+
+function isTerminal(event: { type: string }): event is unknown & TerminalEvent {
+  return TERMINAL.has(event.type)
+}
+
 function log(level: "info" | "debug" | "error", message: string) {
   const line = `[${SERVICE}] ${message}`
   if (level === "error") console.error(line)
@@ -98,11 +114,12 @@ const GitAutocommitPlugin = Plugin.define({
 
     void (async () => {
       for await (const event of ctx.event.subscribe({ signal: controller.signal })) {
-        if (event.type !== "session.idle") continue
-        log("debug", "Session idle detected")
+        // OpenCode v2 does not publish session.idle to plugins. The terminal
+        // execution events are what actually signal the session finished.
+        if (!isTerminal(event)) continue
+        log("debug", `Session finished (${event.type})`)
 
-        const directory = event.location?.directory ?? ctx.location.directory
-        await run(directory, event.data.sessionID)
+        await run(ctx.location.directory, event.data.sessionID)
       }
     })()
 
