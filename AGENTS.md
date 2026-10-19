@@ -44,18 +44,16 @@ Auto-commits bypass hooks so they never block on pre-commit hooks.
 
 ## Package name
 
-- The npm package is **`opencode-git-commit`** (unscoped). It was originally published as `@reachdevel/opencode-git-commit`; do not move it back under the scope.
-- `compat/opencode-git-commit-alias/` holds the deprecated `@reachdevel/opencode-git-commit@3.0.0` shim, which just re-exports the unscoped package so existing `opencode.json` entries keep loading. It is published manually, not by CI.
-- After the 3.0.0 shim is live, the scoped package is deprecated via `npm deprecate` with a pointer to the unscoped name.
+- The npm package is **`opencode-git-autocommit`** (unscoped), matching the sibling `claude-git-autocommit` package.
+- History: it was first published as `@reachdevel/opencode-git-commit`, then briefly as `opencode-git-commit`. Both are abandoned; do not publish under those names again. There is no alias/shim — the rename is a hard cut.
 
 ## Releases
 
 - Version is in `package.json`.
 - Pushing a `v*` tag (e.g. `git tag v3.0.0 && git push origin v3.0.0`) triggers `.github/workflows/publish.yml`, which runs `npm ci`, `npm run build`, and `npm publish` to npm via OIDC trusted publishing.
-- Trusted publishing is configured **per package name** on npmjs.com. A rename means adding a new trusted publisher entry for `opencode-git-commit` (GitHub repo `reachdevel/opencode-git-commit`, workflow `publish.yml`); otherwise the tag push fails with 403/404.
+- Trusted publishing is configured **per package name** on npmjs.com. A rename means adding a new trusted publisher entry for `opencode-git-autocommit` (GitHub repo `reachdevel/opencode-git-autocommit`, workflow `publish.yml`); otherwise the tag push fails with 403/404.
 - `dist/` is gitignored — only `src/` and package metadata ship. The published package's `dist/` is built by CI from the tagged commit.
-- A brand-new package name needs a bootstrap: npm refuses to attach a trusted publisher until the package exists. Publish a throwaway `0.0.1` locally first (`npm login`), run `npm trust github opencode-git-commit --file publish.yml --allow-publish` (npm ≥ 11.15, account 2FA required), then let CI publish the real version from the tag. Never tag a version that was already published locally — the workflow fails with "version already exists".
-- The alias shim is published manually from `compat/opencode-git-commit-alias/` (`npm publish`), after the unscoped package version it depends on is live. Then deprecate the scoped name: `npm deprecate @reachdevel/opencode-git-commit "Renamed to opencode-git-commit — install that instead"`.
+- A brand-new package name needs a bootstrap: npm refuses to attach a trusted publisher until the package exists. Publish a throwaway `0.0.1` locally first (`npm login`), run `npm trust github opencode-git-autocommit --file publish.yml --allow-publish` (npm ≥ 11.15, account 2FA required), then let CI publish the real version from the tag. Never tag a version that was already published locally — the workflow fails with "version already exists".
 
 ## Porting to Claude Code (future)
 

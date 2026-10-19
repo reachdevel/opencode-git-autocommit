@@ -1,5 +1,5 @@
 {
-  "name": "opencode-git-commit",
+  "name": "opencode-git-autocommit",
   "version": "3.0.0",
   "description": "Zero-config background git auto-commit plugin for OpenCode CLI",
   "author": "Levent Kurt <reachdevel@gmail.com>",
@@ -9,11 +9,11 @@
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/reachdevel/opencode-git-commit.git"
+    "url": "git+https://github.com/reachdevel/opencode-git-autocommit.git"
   },
-  "homepage": "https://github.com/reachdevel/opencode-git-commit#readme",
+  "homepage": "https://github.com/reachdevel/opencode-git-autocommit#readme",
   "bugs": {
-    "url": "https://github.com/reachdevel/opencode-git-commit/issues"
+    "url": "https://github.com/reachdevel/opencode-git-autocommit/issues"
   },
   "files": [
     "dist",
