@@ -47,6 +47,8 @@ Add to your `opencode.json`:
 ```
 
 ### Manual Installation
+If you manage dependencies yourself, install the package and reference it by name:
+
 ```bash
 npm install opencode-git-autocommit
 ```
@@ -56,7 +58,7 @@ Then add to `opencode.json`:
 {
   "$schema": "https://opencode.ai/config.json",
   "plugins": [
-    "file:///path/to/node_modules/opencode-git-autocommit/dist/index.js"
+    "opencode-git-autocommit"
   ]
 }
 ```
