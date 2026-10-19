@@ -54,6 +54,8 @@ Auto-commits bypass hooks so they never block on pre-commit hooks.
 - Pushing a `v*` tag (e.g. `git tag v3.0.0 && git push origin v3.0.0`) triggers `.github/workflows/publish.yml`, which runs `npm ci`, `npm run build`, and `npm publish` to npm via OIDC trusted publishing.
 - Trusted publishing is configured **per package name** on npmjs.com. A rename means adding a new trusted publisher entry for `opencode-git-commit` (GitHub repo `reachdevel/opencode-git-commit`, workflow `publish.yml`); otherwise the tag push fails with 403/404.
 - `dist/` is gitignored — only `src/` and package metadata ship. The published package's `dist/` is built by CI from the tagged commit.
+- A brand-new package name needs a bootstrap: npm refuses to attach a trusted publisher until the package exists. Publish a throwaway `0.0.1` locally first (`npm login`), run `npm trust github opencode-git-commit --file publish.yml --allow-publish` (npm ≥ 11.15, account 2FA required), then let CI publish the real version from the tag. Never tag a version that was already published locally — the workflow fails with "version already exists".
+- The alias shim is published manually from `compat/opencode-git-commit-alias/` (`npm publish`), after the unscoped package version it depends on is live. Then deprecate the scoped name: `npm deprecate @reachdevel/opencode-git-commit "Renamed to opencode-git-commit — install that instead"`.
 
 ## Porting to Claude Code (future)
 
