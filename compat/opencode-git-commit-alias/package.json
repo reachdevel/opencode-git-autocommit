@@ -1,0 +1,37 @@
+{
+  "name": "@reachdevel/opencode-git-commit",
+  "version": "3.0.0",
+  "description": "Deprecated alias for opencode-git-commit",
+  "author": "Levent Kurt <reachdevel@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "README.md"
+  ],
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "git",
+    "autocommit",
+    "automation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reachdevel/opencode-git-commit.git"
+  },
+  "homepage": "https://github.com/reachdevel/opencode-git-commit#readme",
+  "bugs": {
+    "url": "https://github.com/reachdevel/opencode-git-commit/issues"
+  },
+  "dependencies": {
+    "opencode-git-commit": "^3.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

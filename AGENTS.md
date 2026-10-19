@@ -42,10 +42,17 @@ Commits with `user.name=opencode`, `user.email=opencode@localhost` only when the
 
 Auto-commits bypass hooks so they never block on pre-commit hooks.
 
+## Package name
+
+- The npm package is **`opencode-git-commit`** (unscoped). It was originally published as `@reachdevel/opencode-git-commit`; do not move it back under the scope.
+- `compat/opencode-git-commit-alias/` holds the deprecated `@reachdevel/opencode-git-commit@3.0.0` shim, which just re-exports the unscoped package so existing `opencode.json` entries keep loading. It is published manually, not by CI.
+- After the 3.0.0 shim is live, the scoped package is deprecated via `npm deprecate` with a pointer to the unscoped name.
+
 ## Releases
 
 - Version is in `package.json`.
-- Pushing a `v*` tag (e.g. `git tag v2.0.3 && git push origin v2.0.3`) triggers `.github/workflows/publish.yml`, which runs `npm ci`, `npm run build`, and `npm publish` to npm via OIDC trusted publishing.
+- Pushing a `v*` tag (e.g. `git tag v3.0.0 && git push origin v3.0.0`) triggers `.github/workflows/publish.yml`, which runs `npm ci`, `npm run build`, and `npm publish` to npm via OIDC trusted publishing.
+- Trusted publishing is configured **per package name** on npmjs.com. A rename means adding a new trusted publisher entry for `opencode-git-commit` (GitHub repo `reachdevel/opencode-git-commit`, workflow `publish.yml`); otherwise the tag push fails with 403/404.
 - `dist/` is gitignored — only `src/` and package metadata ship. The published package's `dist/` is built by CI from the tagged commit.
 
 ## Porting to Claude Code (future)

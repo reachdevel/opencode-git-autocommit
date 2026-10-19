@@ -1,6 +1,6 @@
 # Git Autocommit Plugin for OpenCode
 
-[![npm version](https://badge.fury.io/js/@reachdevel%2Fopencode-git-commit.svg)](https://badge.fury.io/js/@reachdevel%2Fopencode-git-commit)
+[![npm version](https://badge.fury.io/js/opencode-git-commit.svg)](https://www.npmjs.com/package/opencode-git-commit)
 
 An OpenCode plugin that automatically commits changes when your coding session ends.
 
@@ -32,7 +32,7 @@ Commit messages are derived from the staged diff itself, so they are determinist
 
 ### Via Command Line
 ```bash
-opencode plugin add @reachdevel/opencode-git-commit@latest
+opencode plugin add opencode-git-commit@latest
 ```
 
 ### Via Configuration
@@ -41,14 +41,14 @@ Add to your `opencode.json`:
 {
   "$schema": "https://opencode.ai/config.json",
   "plugins": [
-    "@reachdevel/opencode-git-commit@latest"
+    "opencode-git-commit@latest"
   ]
 }
 ```
 
 ### Manual Installation
 ```bash
-npm install @reachdevel/opencode-git-commit
+npm install opencode-git-commit
 ```
 
 Then add to `opencode.json`:
@@ -56,9 +56,20 @@ Then add to `opencode.json`:
 {
   "$schema": "https://opencode.ai/config.json",
   "plugins": [
-    "file:///path/to/node_modules/@reachdevel/opencode-git-commit/dist/index.js"
+    "file:///path/to/node_modules/opencode-git-commit/dist/index.js"
   ]
 }
+```
+
+### Migrating from `@reachdevel/opencode-git-commit`
+
+The package moved from the `@reachdevel` scope to the unscoped name. Existing
+installs keep working through the deprecated alias, but new installs should use
+`opencode-git-commit`:
+
+```bash
+opencode plugin remove @reachdevel/opencode-git-commit
+opencode plugin add opencode-git-commit@latest
 ```
 
 ## How It Works
