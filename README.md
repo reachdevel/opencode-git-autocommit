@@ -1,3 +1,37 @@
+# Deprecated: use coding-git-autocommit
+
+This project has been replaced by
+[**coding-git-autocommit**](https://github.com/reachdevel/coding-git-autocommit),
+a single standalone package containing a shared Git engine and internal
+integrations for Claude Code, OpenCode, and Codex. The replacement does not
+depend on this package or repository.
+
+- [npm package](https://www.npmjs.com/package/coding-git-autocommit)
+- [Installation and migration guide](https://github.com/reachdevel/coding-git-autocommit#readme)
+
+## Migrate
+
+Disable the previous hook/plugin before installing its replacement. For a
+project-scoped installation:
+
+```sh
+npx coding-git-autocommit install opencode --project --dry-run
+npx coding-git-autocommit install opencode --project
+```
+
+Use `--user` instead of `--project` for user scope.
+
+Remove the old `opencode-git-autocommit` entry from OpenCode configuration.
+Alternatively, OpenCode v2 can load the new package directly with
+`opencode plugin add coding-git-autocommit@latest`; choose one installation route.
+
+This repository is retained as a read-only historical reference. Existing
+published versions remain available for users who have not migrated.
+
+---
+
+**The documentation below describes historical releases.**
+
 # Git Autocommit Plugin for OpenCode
 
 [![npm version](https://badge.fury.io/js/opencode-git-autocommit.svg)](https://www.npmjs.com/package/opencode-git-autocommit)
